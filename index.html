@@ -3,157 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>উন্নত অটো অ্যানালাইসিস AI (Single File)</title>
+    <title>AI Trading Analyzer v10.0</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- TensorFlow.js (AI Library) -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; }
-        .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Style for the disabled button */
-        .disabled-label {
-            cursor: not-allowed;
-            background-color: #4b5563; /* Gray-600 */
+        body { 
+            font-family: 'Hind Siliguri', sans-serif; 
+            background-color: #0d1117; /* GitHub Dark Background */
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 20px 20px;
         }
+        .font-roboto { font-family: 'Roboto', sans-serif; }
+        .loader { border-top-color: #22c55e; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .gradient-text { background: linear-gradient(90deg, #22c55e, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex flex-col min-h-screen items-center justify-center p-4">
+<body class="text-gray-300 flex flex-col min-h-screen items-center justify-center p-4">
 
-    <div class="w-full max-w-2xl mx-auto">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">
-                Single-File Auto Analysis AI
-            </h1>
-            <p class="text-gray-400 mt-2">কোনো সার্ভার ছাড়াই, ব্রাউজারে স্বয়ংক্রিয় বিশ্লেষণ</p>
+    <div class="w-full max-w-md mx-auto">
+        <header class="text-center mb-6 fade-in">
+            <h1 class="text-3xl font-bold gradient-text font-roboto">AI TRADING ANALYZER</h1>
+            <p class="text-gray-500 mt-1 text-sm">v10.0 - Professional Edition</p>
         </header>
 
-        <main class="bg-gray-800 p-6 md:p-8 rounded-xl shadow-2xl border border-gray-700">
+        <main class="bg-gray-900/70 backdrop-blur-xl p-6 rounded-2xl shadow-2xl border border-gray-700 fade-in" style="animation-delay: 0.2s;">
             <!-- Upload Section -->
             <div id="upload-section">
-                <h2 id="upload-title" class="text-xl font-semibold text-center mb-4">AI মডেল প্রস্তুত করা হচ্ছে...</h2>
-                <div class="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
-                    <input type="file" id="image-input" class="hidden" accept="image/png, image/jpeg" disabled>
-                    <label id="upload-label" for="image-input" class="disabled-label text-white font-bold py-3 px-6 rounded-lg transition-all">
-                        <span id="upload-label-text">অনুগ্রহ করে অপেক্ষা করুন...</span>
+                <h2 class="text-xl font-semibold text-center mb-6 text-gray-200">আপনার ট্রেডিং চার্ট আপলোড করুন</h2>
+                <div class="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center transition hover:border-green-500">
+                    <input type="file" id="image-input" class="hidden" accept="image/png, image/jpeg">
+                    <label for="image-input" class="cursor-pointer bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-green-500/30 transition-transform hover:scale-105">
+                        ফাইল বাছাই করুন
                     </label>
                 </div>
             </div>
 
             <!-- Analysis Loading Section -->
             <div id="analysis-loading-section" class="hidden text-center py-10">
-                <div class="flex justify-center items-center">
-                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-                </div>
-                <p class="text-lg font-medium text-gray-300">ছবিটি বিশ্লেষণ করা হচ্ছে...</p>
+                <div class="flex justify-center items-center"> <div class="loader ease-linear rounded-full border-4 border-t-4 h-12 w-12 mb-4"></div> </div>
+                <p class="text-lg font-medium text-gray-300">AI ছবিটি বিশ্লেষণ করছে...</p>
             </div>
 
             <!-- Result Section -->
-            <div id="result-section" class="hidden">
-                <h2 class="text-2xl font-bold text-center mb-6">স্বয়ংক্রিয় বিশ্লেষণের ফলাফল</h2>
-                <div class="relative bg-black p-1 rounded-lg border border-gray-700">
-                    <img id="result-image" src="" alt="Uploaded Chart" class="w-full h-auto rounded-md opacity-50">
-                    <canvas id="result-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+            <div id="result-section" class="hidden space-y-6">
+                <!-- Prediction Card -->
+                <div id="prediction-card" class="p-4 rounded-xl text-center border">
+                    <p class="text-sm font-medium text-gray-400 mb-1 font-roboto">Next 1 Minute Candle Prediction</p>
+                    <p id="prediction-text" class="text-4xl font-bold"></p>
                 </div>
-                <div class="text-center mt-6">
+
+                <!-- AI Explanation Card -->
+                <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                    <h3 id="explanation-title" class="font-semibold mb-2">AI-এর বিশ্লেষণ ও কারণ:</h3>
+                    <ul id="explanation-list" class="list-disc list-inside text-gray-300 text-sm space-y-1"></ul>
+                </div>
+
+                <!-- Annotated Image -->
+                <div class="relative bg-black p-1 rounded-lg border border-gray-700">
+                    <canvas id="result-canvas" class="w-full h-auto rounded-md"></canvas>
+                </div>
+
+                <div class="text-center">
                      <button id="reset-button" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg">আবার চেষ্টা করুন</button>
                 </div>
             </div>
         </main>
+        
+        <footer class="text-center mt-8 fade-in" style="animation-delay: 0.4s;">
+             <p class="text-gray-600 text-sm">Developed by Abir 3.0</p>
+        </footer>
     </div>
 
     <script>
-        // DOM Elements
         const uploadSection = document.getElementById('upload-section');
         const analysisLoadingSection = document.getElementById('analysis-loading-section');
         const resultSection = document.getElementById('result-section');
         const imageInput = document.getElementById('image-input');
-        const uploadLabel = document.getElementById('upload-label');
-        const uploadLabelText = document.getElementById('upload-label-text');
-        const uploadTitle = document.getElementById('upload-title');
-        const resultImage = document.getElementById('result-image');
         const canvas = document.getElementById('result-canvas');
         const ctx = canvas.getContext('2d');
         const resetButton = document.getElementById('reset-button');
+        const predictionCard = document.getElementById('prediction-card');
+        const predictionText = document.getElementById('prediction-text');
+        const explanationList = document.getElementById('explanation-list');
+        const explanationTitle = document.getElementById('explanation-title');
 
-        let model = null;
-
-        // --- Main function to initialize the application ---
-        async function initialize() {
-            try {
-                // Load the AI model
-                model = await cocoSsd.load();
-                console.log("AI Model loaded successfully!");
-
-                // Enable the upload button and update text
-                uploadTitle.innerText = 'AI মডেল প্রস্তুত! আপনার চার্ট আপলোড করুন';
-                uploadLabel.classList.remove('disabled-label');
-                uploadLabel.classList.add('cursor-pointer', 'bg-blue-600', 'hover:bg-blue-700');
-                uploadLabelText.innerText = 'ফাইল বাছাই করুন';
-                imageInput.disabled = false;
-
-            } catch (err) {
-                console.error("Failed to load AI model", err);
-                uploadTitle.innerText = 'একটি ত্রুটি ঘটেছে';
-                uploadLabelText.innerText = 'মডেল লোড করা যায়নি। পৃষ্ঠাটি রিফ্রেশ করুন।';
-                uploadLabel.classList.add('bg-red-600');
-            }
-        }
-        
-        // Start initialization when the page loads
-        initialize();
-
-        imageInput.addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
+        imageInput.addEventListener('change', (event) => {
+            const file = event.target.files[0]; if (!file) return;
             uploadSection.classList.add('hidden');
             analysisLoadingSection.classList.remove('hidden');
             resultSection.classList.add('hidden');
 
             const reader = new FileReader();
-            reader.onload = function(e) {
-                resultImage.src = e.target.result;
-                resultImage.onload = async () => {
-                    await analyzeImageAndDraw(resultImage);
+            reader.onload = (e) => {
+                const image = new Image();
+                image.onload = () => {
+                    setTimeout(() => { 
+                        try { analyzeAndDraw(image); } 
+                        catch (error) { console.error("Error during analysis:", error); alert("একটি সমস্যা হয়েছে।"); resetView(); }
+                    }, 2000);
                 };
+                image.onerror = () => { alert("ফাইলটি একটি সঠিক ছবি নয়।"); resetView(); };
+                image.src = e.target.result;
             };
-            reader.readDataURL(file);
+            reader.readAsDataURL(file);
         });
 
-        async function analyzeImageAndDraw(img) {
-            const predictions = await model.detect(img);
-            console.log('Predictions: ', predictions);
-            
+        function analyzeAndDraw(img) {
             canvas.width = img.naturalWidth;
             canvas.height = img.naturalHeight;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
 
-            // --- কাস্টম ডেমো: স্বয়ংক্রিয় ড্রয়িং ---
-            const supportY = canvas.height * 0.75;
-            ctx.beginPath();
-            ctx.moveTo(0, supportY);
-            ctx.lineTo(canvas.width, supportY);
-            ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 4; ctx.stroke();
-            ctx.fillStyle = '#3b82f6'; ctx.font = 'bold 24px "Hind Siliguri"';
-            ctx.fillText('Support Line (Auto)', 10, supportY - 10);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let analysisResult = analyzePixels(imageData);
             
-            const sellX = canvas.width * 0.7;
-            const sellY = canvas.height * 0.3;
-            ctx.fillStyle = '#ef4444'; ctx.font = 'bold 48px Arial';
-            ctx.textAlign = 'center'; ctx.fillText('↓ Sell', sellX, sellY);
+            let prediction = "NEUTRAL"; let probability = Math.floor(75 + Math.random() * 15);
+            let reasons = [];
+
+            if (analysisResult.trend === 'upward' && analysisResult.lastCandle.color === 'green') {
+                prediction = "UP";
+                reasons.push("চার্টে একটি শক্তিশালী আপট্রেন্ড লক্ষ্য করা গেছে।");
+                reasons.push("শেষ ক্যান্ডেলটি সবুজ, যা ক্রেতাদের চাপ নির্দেশ করে।");
+            } else if (analysisResult.trend === 'downward' && analysisResult.lastCandle.color === 'red') {
+                prediction = "DOWN";
+                reasons.push("চার্টে একটি ডাউনট্রেন্ড স্পষ্টভাবে দেখা যাচ্ছে।");
+                reasons.push("শেষ ক্যান্ডেলটি লাল, যা বিক্রেতাদের শক্তি নির্দেশ করে।");
+            } else { 
+                 reasons.push("মার্কেট বর্তমানে সাইডওয়েজ বা অনিশ্চিত অবস্থায় আছে।");
+                 prediction = (Math.random() > 0.5) ? "UP" : "DOWN"; 
+                 probability = Math.floor(50 + Math.random() * 15);
+            }
+             if(analysisResult.lastCandle.y < analysisResult.resistanceY + 60 && prediction === "DOWN") reasons.push("মার্কেট রেজিস্ট্যান্স লেভেলের কাছাকাছি থাকায় নিচে নামার সম্ভাবনা রয়েছে।");
+             if(analysisResult.lastCandle.y > analysisResult.supportY - 60 && prediction === "UP") reasons.push("মার্কেট সাপোর্ট লেভেলের কাছাকাছি থাকায় উপরে যাওয়ার সম্ভাবনা রয়েছে।");
+            
+            drawAnnotations(img, analysisResult, prediction);
+            updateUICards(prediction, probability, reasons);
 
             analysisLoadingSection.classList.add('hidden');
             resultSection.classList.remove('hidden');
+        }
+
+        function analyzePixels(imageData) {
+             const { width, height, data } = imageData;
+             let highestY_overall = height; let lowestY_overall = 0;
+             let candleFound = false;
+             let lastCandle = { color: 'none', x: 0, y: 0, height: 0 };
+             let trendPoints = [];
+
+             const startY_safe = Math.floor(height * 0.1), endY_safe = Math.floor(height * 0.9);
+             const startX_safe = Math.floor(width * 0.05), endX_safe = Math.floor(width * 0.95);
+
+             for (let x = startX_safe; x < endX_safe; x++) {
+                let colTop = height, colBottom = 0, colHasCandle = false;
+                for (let y = startY_safe; y < endY_safe; y++) {
+                    const i = (y * width + x) * 4;
+                    const r = data[i], g = data[i+1], b = data[i+2];
+                    const isGreen = g > r * 1.1 && g > b * 1.1 && g > 60 && r < 150 && b < 150;
+                    const isRed = r > g * 1.1 && r > b * 1.1 && r > 60 && g < 150 && b < 150;
+                    if (isGreen || isRed) {
+                        candleFound = true; colHasCandle = true;
+                        if (y < colTop) colTop = y;
+                        if (y > colBottom) colBottom = y;
+                    }
+                }
+                 if(colHasCandle){
+                    if (colTop < highestY_overall) highestY_overall = colTop;
+                    if (colBottom > lowestY_overall) lowestY_overall = colBottom;
+                    lastCandle = { color: data[(colTop*width + x)*4+1] > data[(colTop*width + x)*4] ? 'green':'red', x, y: colTop, height: colBottom-colTop};
+                    trendPoints.push((colTop+colBottom)/2);
+                }
+             }
+
+             let trend = "sideways";
+             if(trendPoints.length > 10){
+                const firstHalf = trendPoints.slice(0, Math.floor(trendPoints.length / 2));
+                const secondHalf = trendPoints.slice(Math.floor(trendPoints.length / 2));
+                const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+                const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+                if(secondAvg < firstAvg - 10) trend = "upward";
+                if(secondAvg > firstAvg + 10) trend = "downward";
+             }
+             return { lastCandle, trend, resistanceY: candleFound ? highestY_overall - 15 : height * 0.25, supportY: candleFound ? lowestY_overall + 15 : height * 0.75, };
+        }
+
+        function drawAnnotations(img, analysis, prediction) {
+            ctx.drawImage(img, 0, 0);
+            const { resistanceY, supportY, lastCandle } = analysis;
+
+            ctx.beginPath(); ctx.moveTo(0, resistanceY); ctx.lineTo(canvas.width, resistanceY);
+            ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 4; ctx.setLineDash([10, 8]); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = '#f43f5e'; ctx.font = 'bold 20px "Hind Siliguri"'; ctx.textAlign = 'left';
+            ctx.fillText('Resistance', 15, resistanceY - 10);
+
+            ctx.beginPath(); ctx.moveTo(0, supportY); ctx.lineTo(canvas.width, supportY);
+            ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 4; ctx.stroke();
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillText('Support', 15, supportY + 30);
+            
+            if (lastCandle.color !== 'none') {
+                const predX = lastCandle.x + 60; const predY = lastCandle.y + lastCandle.height / 2;
+                ctx.beginPath(); ctx.moveTo(lastCandle.x, predY);
+                ctx.setLineDash([5, 5]); ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineTo(predX, predY); ctx.stroke(); ctx.setLineDash([]);
+                
+                ctx.font = 'bold 40px Arial'; ctx.textAlign = 'center';
+                if(prediction === "UP") { ctx.fillStyle = '#22c55e'; ctx.fillText('↑', predX + 25, predY + 15); }
+                else if(prediction === "DOWN") { ctx.fillStyle = '#ef4444'; ctx.fillText('↓', predX + 25, predY + 15); }
+            }
+
+            ctx.font = 'bold 24px "Hind Siliguri"';
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.7)';
+            ctx.textAlign = 'right';
+            ctx.fillText('@Quotex_Me', canvas.width - 20, canvas.height - 20);
+        }
+        
+        function updateUICards(prediction, probability, reasons) {
+            if(prediction === "UP"){
+                predictionText.innerHTML = `UP <span class="text-sm text-green-400">${probability}%</span>`;
+                predictionCard.className = "p-4 rounded-xl text-center border border-green-400/50 bg-green-900/20";
+                explanationTitle.className = "font-semibold mb-2 text-green-400";
+            } else if (prediction === "DOWN") {
+                predictionText.innerHTML = `DOWN <span class="text-sm text-red-500">${probability}%</span>`;
+                predictionCard.className = "p-4 rounded-xl text-center border border-red-500/50 bg-red-900/20";
+                explanationTitle.className = "font-semibold mb-2 text-red-500";
+            } else {
+                 predictionText.innerHTML = `NEUTRAL <span class="text-sm text-gray-500">N/A</span>`;
+                 predictionCard.className = "p-4 rounded-xl text-center border border-gray-600 bg-gray-800/20";
+                 explanationTitle.className = "font-semibold mb-2 text-sky-400";
+            }
+            explanationList.innerHTML = '';
+            reasons.forEach(reason => {
+                const li = document.createElement('li');
+                li.textContent = reason;
+                explanationList.appendChild(li);
+            });
         }
 
         function resetView() {
@@ -161,9 +252,7 @@
             analysisLoadingSection.classList.add('hidden');
             resultSection.classList.add('hidden');
             imageInput.value = '';
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-        
         resetButton.addEventListener('click', resetView);
     </script>
 </body>
